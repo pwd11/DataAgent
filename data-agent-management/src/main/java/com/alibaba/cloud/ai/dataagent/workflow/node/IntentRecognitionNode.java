@@ -25,11 +25,11 @@ import com.alibaba.cloud.ai.dataagent.prompt.PromptHelper;
 import com.alibaba.cloud.ai.dataagent.service.llm.LlmService;
 import com.alibaba.cloud.ai.dataagent.util.ChatResponseUtil;
 import com.alibaba.cloud.ai.dataagent.util.FluxUtil;
+import com.alibaba.cloud.ai.dataagent.util.JsonParseUtil;
 import com.alibaba.cloud.ai.dataagent.util.StateUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
@@ -46,10 +46,9 @@ import static com.alibaba.cloud.ai.dataagent.constant.Constant.*;
 @AllArgsConstructor
 public class IntentRecognitionNode implements NodeAction {
 
-	private static final BeanOutputConverter<IntentRecognitionOutputDTO> OUTPUT_CONVERTER = new BeanOutputConverter<>(
-			IntentRecognitionOutputDTO.class);
-
 	private final LlmService llmService;
+
+	private final JsonParseUtil jsonParseUtil;
 
 	@Override
 	public Map<String, Object> apply(OverAllState state) throws Exception {
@@ -74,7 +73,8 @@ public class IntentRecognitionNode implements NodeAction {
 				Flux.just(ChatResponseUtil.createPureResponse(TextType.JSON.getEndSign()),
 						ChatResponseUtil.createResponse("\n意图识别完成！")),
 				result -> {
-					IntentRecognitionOutputDTO intent = OUTPUT_CONVERTER.convert(result);
+					IntentRecognitionOutputDTO intent = jsonParseUtil.tryConvertToObject(result,
+							IntentRecognitionOutputDTO.class);
 					Map<String, Object> output = new HashMap<>();
 					output.put(INTENT_RECOGNITION_NODE_OUTPUT, intent);
 					if ("《闲聊或无关指令》".equals(intent.getClassification())

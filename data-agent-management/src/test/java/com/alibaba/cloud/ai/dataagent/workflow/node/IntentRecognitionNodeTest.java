@@ -39,6 +39,7 @@ import com.alibaba.cloud.ai.dataagent.service.llm.LlmService;
 import com.alibaba.cloud.ai.dataagent.support.GraphNodeTestSupport.NodeErrorExecution;
 import com.alibaba.cloud.ai.dataagent.support.GraphNodeTestSupport.NodeExecution;
 import com.alibaba.cloud.ai.dataagent.util.ChatResponseUtil;
+import com.alibaba.cloud.ai.dataagent.util.JsonParseUtil;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.state.strategy.ReplaceStrategy;
 
@@ -63,7 +64,7 @@ class IntentRecognitionNodeTest {
 
 	@BeforeEach
 	void setUp() {
-		intentRecognitionNode = new IntentRecognitionNode(llmService);
+		intentRecognitionNode = new IntentRecognitionNode(llmService, new JsonParseUtil(llmService));
 	}
 
 	private OverAllState createTestState() {
@@ -91,6 +92,28 @@ class IntentRecognitionNodeTest {
 		assertFalse(execution.finalResult().containsKey(FINAL_ANSWER));
 		assertTrue(execution.streamedText().contains("正在进行意图识别"));
 		assertTrue(execution.streamedText().contains("意图识别完成"));
+	}
+
+	@Test
+	void thinkingModelResponse_returnsDataAnalysisIntent() throws Exception {
+		OverAllState state = createTestState();
+		state.updateState(Map.of(INPUT_KEY, CHAT_QUERY, MULTI_TURN_CONTEXT, "(无)"));
+
+		String thinkingResponse = """
+				Here's a thinking process:
+				The query asks for aggregated data.
+				</think>
+				{"classification":"《可能的数据分析请求》","response":""}
+				""";
+		when(llmService.callUser(anyString(), any()))
+			.thenReturn(Flux.just(ChatResponseUtil.createPureResponse(thinkingResponse)));
+
+		NodeExecution execution = execute(intentRecognitionNode.apply(state), INTENT_RECOGNITION_NODE_OUTPUT);
+		IntentRecognitionOutputDTO output = output(execution);
+
+		assertEquals("《可能的数据分析请求》", output.getClassification());
+		assertEquals("", output.getResponse());
+		assertFalse(execution.finalResult().containsKey(FINAL_ANSWER));
 	}
 
 	@Test
