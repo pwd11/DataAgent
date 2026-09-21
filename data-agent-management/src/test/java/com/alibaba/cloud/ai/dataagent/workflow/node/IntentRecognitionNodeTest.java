@@ -158,8 +158,8 @@ class IntentRecognitionNodeTest {
 		OverAllState state = createTestState();
 		state.updateState(Map.of(INPUT_KEY, CHAT_QUERY, MULTI_TURN_CONTEXT, "(无)"));
 		when(llmService.callUser(anyString(), any()))
-			.thenReturn(Flux.just(ChatResponseUtil.createPureResponse("Reasoning</thi"),
-					ChatResponseUtil.createPureResponse("nk>\n```json\n"),
+			.thenReturn(Flux.just(ChatResponseUtil.createPureResponse("Reasoning</th"),
+					ChatResponseUtil.createPureResponse("ink>\n```json\n"),
 					ChatResponseUtil.createPureResponse(JSON_ANALYSIS), ChatResponseUtil.createPureResponse("```")));
 
 		NodeExecution execution = execute(intentRecognitionNode.apply(state), INTENT_RECOGNITION_NODE_OUTPUT);
