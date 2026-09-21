@@ -74,7 +74,7 @@ class PromptConstantTest {
 						"optimization_section", "json_example"),
 				contract("sql-error-fixer", PromptConstant::getSqlErrorFixerPromptTemplate, "dialect", "error_sql",
 						"error_message", "execution_description", "schema_info", "question", "evidence",
-						"previous_step_results"),
+						"semantic_model", "previous_step_results"),
 				contract("python-generator", PromptConstant::getPythonGeneratorPromptTemplate, "python_memory",
 						"python_timeout", "database_schema", "sample_input", "plan_description"),
 				contract("python-analyze", PromptConstant::getPythonAnalyzePromptTemplate, "python_output",

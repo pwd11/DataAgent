@@ -174,6 +174,7 @@ public class PromptHelper {
 		params.put("question", sqlGenerationDTO.getQuery());
 		params.put("schema_info", schemaInfo);
 		params.put("evidence", sqlGenerationDTO.getEvidence());
+		params.put("semantic_model", StringUtils.defaultIfBlank(sqlGenerationDTO.getSemanticModel(), ""));
 		params.put("error_sql", sqlGenerationDTO.getSql());
 		params.put("error_message", sqlGenerationDTO.getExceptionMessage());
 		params.put("execution_description", sqlGenerationDTO.getExecutionDescription());
